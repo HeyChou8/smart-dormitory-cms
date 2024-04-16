@@ -1,0 +1,30 @@
+/* 默认样式 */
+.custom-modal {
+    width: 600px !important;
+  }
+  
+  .custom-range-picker .ant-picker-input input {
+    font-size: 16px !important;
+  }
+  
+  .ant-picker-panel-container,
+  .ant-picker-panel {
+    width: auto !important;
+  }
+  
+  /* 移动设备优化 */
+  @media (max-width: 768px) {
+    .custom-modal {
+      width: 80% !important; /* 在小屏幕设备上调整宽度 */
+    }
+  
+    .custom-range-picker .ant-picker-input input  .ant-picker-panel .ant-picker-date-panel{
+      font-size: 14px !important; /* 在小屏幕设备上调整字体大小 */
+    }
+    .custom-range-picker .ant-picker-cell-inner {
+        padding: 4px; /* 减小内部元素的边距 */
+      }
+  
+    /* 注意这里不需要重复声明，因为它的样式在屏幕大小不同下保持不变 */
+  }
+  
