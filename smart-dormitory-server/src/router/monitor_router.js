@@ -6,7 +6,7 @@ const monitorRouter = new KoaRouter({prefix:'/monitor'})
 const app = websockify(new Koa());
 const router = new KoaRouter
 const axios = require('axios');
-const NODEMCU_BASE_URL = 'http://172.20.10.12';
+const NODEMCU_BASE_URL = 'http://172.20.10.12'//硬件端ip地址
 const schedule = require('node-schedule');
 let isPowerOn = false;
 let autoModeSettings = {
@@ -18,7 +18,7 @@ app.use(bodyParser());
 // 存储所有活跃的 WebSocket 连接
 let connections = [];
 
-// 处理 HTTP POST 请求,在pc显示温湿度，人体有无
+// 处理 HTTP POST 请求,在pc显示温湿度，人体有无，给硬件端请求
 monitorRouter.post('/data', async (ctx) => {
   const data = ctx.request.body;
 //   console.log(data);

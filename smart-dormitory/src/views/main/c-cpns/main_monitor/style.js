@@ -9,6 +9,6 @@ export const MainMonitorWrapper =  styled.div`
         .row {
             display: flex;
             margin-top:2.6042vw;
-            gap:5.2083vw
+            gap:5.2083vw;
         }
 `

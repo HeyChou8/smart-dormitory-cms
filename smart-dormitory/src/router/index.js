@@ -1,4 +1,4 @@
-import { localCache } from "../utils/cache.ts"
+
 import React from "react"
 import { Navigate } from "react-router-dom"
 const Login = React.lazy(() => import('../views/login'))
@@ -9,7 +9,7 @@ const MainMonitor = React.lazy(() => import('../views/main/c-cpns/main_monitor')
 const MainCenter = React.lazy(() => import('../views/main/c-cpns/main_center'))
 const MainRepair = React.lazy(() => import('../views/main/c-cpns/main_repair'))
 const MainNotice = React.lazy(() => import('../views/main/c-cpns/main_notice'))
-const role = localCache.getCache('role')
+const MainVisualization = React.lazy(() => import('../views/main/c-cpns/main_visualization'))
 const routes = [
     {
         path: '/',
@@ -38,6 +38,10 @@ const routes = [
             {
                 path: 'notice',
                 element: <MainNotice/>
+            },
+            {
+                path: 'visual',
+                element:<MainVisualization/>
             }
         ]
     },

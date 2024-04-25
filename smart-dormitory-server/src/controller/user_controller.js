@@ -3,14 +3,21 @@ class UserController {
     async create(ctx,next){
         // 拿到用户传递的信息
         const user = ctx.request.body
-        // 将信息存入数据库
+        try {
+            // 将信息存入数据库
         const result = await UserService.create(user)
         // console.log(result)
-    // 告知前端创建成功
+         // 告知前端创建成功
         ctx.body = {
             code:0,
             message: '创建成功',
             data:result
+        }
+        } catch (error) {
+            // 当宿舍号和床号的组合出现重复时返回错误
+            if(error.code === 'ER_DUP_ENTRY'){
+                return ctx.app.emit('error','the_bed_has_been_allocated',ctx)
+            }
         }
     }
     async list(ctx,next){

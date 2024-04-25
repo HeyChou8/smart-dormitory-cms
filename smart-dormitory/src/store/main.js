@@ -152,7 +152,7 @@ const UseMainStore = create(devtools(
         // 获取个人信息
         postProfileAction:async(user_id)=>{
             const postResult = await postProfile(user_id)
-            console.log(postResult.data[0])
+            // console.log(postResult.data[0])
             function isEmptyObject(obj) {
                 if(obj){
                     return Object.keys(obj).length !== 0;

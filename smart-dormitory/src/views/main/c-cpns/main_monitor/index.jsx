@@ -8,6 +8,7 @@ import FanControl from './c-cpns/fan_control';
 import PowerScheduleControl from './c-cpns/power_schedule_control';
 import AutoModeControl from './c-cpns/auto_mode_control';
 const {Content, Footer } = Layout;
+
 const MainMonitor = memo(() => {
     const {
         token: { colorBgContainer, borderRadiusLG },
@@ -37,8 +38,8 @@ const MainMonitor = memo(() => {
           }}
         >
           <div style={{
+              height:'29.2969vw',
               padding: '1.5625vw',
-              minHeight: '52.0833vw',
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
             }}>
@@ -53,7 +54,6 @@ const MainMonitor = memo(() => {
               </div>
               </div>
             </div>
-          
         </Footer>
         </div>
     </MainMonitorWrapper>

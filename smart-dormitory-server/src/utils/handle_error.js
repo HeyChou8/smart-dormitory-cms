@@ -26,6 +26,10 @@ app.on('error',(error,ctx)=>{
         case 'is_not_admin':
             code = -1006
             message = '您不是管理员，无权限操作'
+        break 
+        case 'the_bed_has_been_allocated':
+            code = -1007
+            message = '该床位已经被分配'
     }
     ctx.body = {code,message}
 })

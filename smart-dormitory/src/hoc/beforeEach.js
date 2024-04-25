@@ -9,7 +9,7 @@ const beforeEach = memo((props) => {
     const route = useLocation()
     const token =  localCache.getCache('login_token')
     const role = localCache.getCache('role')
-    const menuList = localCache.getCache('menuList')
+    const copyRole = localCache.getCache('copyRole')
     // console.log(token)
     useEffect(() => {
       // 没有token时拦截
@@ -19,21 +19,19 @@ const beforeEach = memo((props) => {
       
       // 判断是学生还是管理员进行重定向
       if(role ==='学生'){
-        navigate('/main/monitor')
+        navigate('/main/visual')
         localCache.setCache('copyRole',role)
         localCache.removeCache('role')
       }else if(role === '管理员'){
-        navigate('/main/user')
+        navigate('/main/visual')
         localCache.setCache('copyRole',role)
         localCache.removeCache('role')
       }
       // 当角色为学生时拦截通过路由进入用户管理页面
-      if(menuList?.length === 4 && route.pathname === '/main/user'){
-      navigate('/main/monitor')
+      if(copyRole==='学生' && route.pathname === '/main/user'){
+      navigate('/main/visual')
       }
-      if(route.pathname === '/login'){
-        // localCache.removeCache('login_token')
-      }
+      
     },[route.pathname])
   return (
     <>{props.children}</>

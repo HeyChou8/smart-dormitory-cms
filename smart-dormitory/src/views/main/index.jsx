@@ -6,50 +6,27 @@ import {
   HomeTwoTone,
   ToolOutlined,
   ProfileOutlined,
-  MenuFoldOutlined
+  AreaChartOutlined
 } from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme,Modal } from 'antd';
+import { Layout, Menu, theme,Modal } from 'antd';
 import { MainWrapper } from './style';  
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate,Link } from 'react-router-dom';
 import { localCache } from '../../utils/cache.ts';
 import { useEffect } from 'react';
 import HeaderInfo from '../../components/header_info/index';
 import UseLoginStore from '../../store/login'
+import Breadcrumbs from '@/components/Breadcrumbs';
 const { Header,  Sider } = Layout;
-
-// function getItem(label, key, icon, children) {
-//   return {
-//     key,
-//     icon,
-//     children,
-//     label,
-//   };
-// }
-
-// const items = [
-//   getItem('用户管理', '1', <UserOutlined />),
-//   getItem('学生信息管理', '2',<ProfileOutlined />, ),
-//   getItem('监测控制', '3', <DesktopOutlined /> ),
-//   getItem('报修管理', '4', <ToolOutlined />),
-//   getItem('宿舍公告和通知', '5', <FileOutlined />),
-// ];
 
 const Main = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [selectedKey,setSelectedKey] = useState('1')
-  const route = useLocation()
+  const [selectedKeys,setSelectedKeys] = useState([])
   const menuList = localCache.getCache('menuList')
   const navigate = useNavigate()
   const isTokenValidAction = UseLoginStore(state => state.isTokenValidAction)
   const [tokenExpired, setTokenExpired] = useState(false);
-  const token = localCache.getCache('login_token');
+  const route = useLocation()
   useEffect(() => {
-    if(menuList?.length === 4){
-      setSelectedKey('2')
-      navigate('/main/monitor')
-    }else {
-      navigate('/main/user')
-    }
     // 检查token有效性
     const checkTokenValidity = () => {
       if (!isTokenValidAction()) {
@@ -88,15 +65,24 @@ const Main = () => {
       tokenExpiredAlert();
     }
   },[tokenExpired])
+  // 根据路径匹配菜单
+  useEffect(() => {
+    const path = route.pathname
+    const match = menuListHandled.find(item => item.path === path);
+    if (match) {
+      setSelectedKeys([match.key]);
+    }
+  }, [route.pathname]);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const iconArr = [<UserOutlined />,<DesktopOutlined />,<ProfileOutlined />,<ToolOutlined />,<FileOutlined />]
+  const iconArr = [<UserOutlined />,<DesktopOutlined />,<ProfileOutlined />,<ToolOutlined />,<FileOutlined />,<AreaChartOutlined />]
   // 处理数据并把图标存入数组
   const menuListHandled = menuList?.map((item) =>{
-    const key = item.menu_id
+    const key = String(item.menu_id)
     const label = item.menu_name
-    return {label,key}
+    const path = item.menu_url
+    return {label,key,path}
   })
   // 遍历图标数组存入菜单列表中
     iconArr.forEach((item,index) => {
@@ -104,38 +90,10 @@ const Main = () => {
         menuListHandled[index].icon = item
       }
   }) 
-  // 菜单点击事件
-const handleMenuClick = (e) => {
-  setSelectedKey(e.key)
-  switch(e.key){
-    case '1': navigate('user')
-    break
-    case '2': navigate('monitor')
-    break
-    case '3': navigate('center')
-    break
-    case '4': navigate('repair')
-    break
-    case '5': navigate('notice')
-    break
-  }
-}
-function getMenuName(key){
-  switch (key) {
-    case '1':
-      return '用户管理';
-    case '2':
-      return '监测控制';
-    case '3':
-      return '个人中心';
-    case'4':
-      return '报修管理';
-    case '5':
-      return '宿舍公告和通知';
-    default: 
-      return '';
-  }
-}
+  // 移除最后一个对象
+  const lastObj = menuListHandled.pop()
+  // 将最后一个对象添加到数组第一个
+  menuListHandled.unshift(lastObj)
   return (
     <MainWrapper>
       <div className="main">
@@ -159,8 +117,12 @@ function getMenuName(key){
         <HomeTwoTone  style={{fontSize: '1.5625vw',marginRight: '0.9766vw'}}/>
           {!collapsed && <h2 className='title'>智慧宿舍管理系统</h2>}
         </div>
-        <Menu theme="dark" defaultSelectedKeys={menuList?.length===5 ?['1'] : ['2']} 
-        mode="inline" items={menuListHandled} onClick={handleMenuClick} />
+        <Menu theme="dark" selectedKeys={selectedKeys} 
+        mode="inline" items={menuListHandled.map(item => ({
+          key: item.key,
+          icon: item.icon,
+          label: <Link to={item.path}>{item.label}</Link>
+        }))} />
       </Sider>
       <div className="main_content" style={{marginLeft: !collapsed ? '13.0208vw' : '4.8828vw',
        width: !collapsed ? '86vw' : '94vw'}} >  
@@ -173,14 +135,7 @@ function getMenuName(key){
             display: 'flex',
             justifyContent: 'space-between'
           }}>
-             <Breadcrumb
-            style={{
-              fontSize: '1.0417vw',
-              margin: '1.0417vw 0.9766vw',
-            }}
-          >
-            <Breadcrumb.Item><h2><MenuFoldOutlined style={{fontSize: '1.5625vw',marginRight:'0.651vw'}} />{getMenuName(selectedKey)}</h2></Breadcrumb.Item>
-          </Breadcrumb>
+          <Breadcrumbs menuData={menuListHandled}/>
           <HeaderInfo/>
           </Header>
           <Outlet></Outlet>

@@ -4,11 +4,25 @@ import { Button, Modal,Form, Input, Select } from 'antd';
 import FormItem from 'antd/es/form/FormItem';
 import { useForm } from 'antd/lib/form/Form';
 import UseMainStore from '../../../../../../store/main';
+const { Option } = Select;
 const UserModal = (props) => {
   const [open, setOpen] = useState(false);
   const [showErrorMessage,setShowErrorMessage] = useState('')
   const [form] = useForm()
   const {newUserAction} = UseMainStore()
+  // 将宿舍号的选择器结合到输入框
+  const selectBefore = (
+    <FormItem name='building' noStyle>
+      <Select placeholder='栋' style={{ width: '4.5573vw' }}>
+      <Option value="A"></Option>
+      <Option value="B"></Option>
+      <Option value="C"></Option>
+      <Option value="D"></Option>
+      <Option value="E"></Option>
+      <Option value="F"></Option>
+    </Select>
+  </FormItem>
+  )
   const showModal = () => {
     setOpen(true);
   };
@@ -20,7 +34,11 @@ const UserModal = (props) => {
   };
 //   点击确定
   const handleFinish = async(values) => {
-    const res =  await newUserAction(values)
+    // 数据处理
+    let userInfo = values
+    userInfo.dormitory_number = `${userInfo.building}栋${userInfo.dormitory_number}`
+    delete userInfo.building
+    const res =  await newUserAction(userInfo)
     if(res.code===0){
       setOpen(false);
       setShowErrorMessage('')
@@ -66,11 +84,13 @@ const UserModal = (props) => {
             </FormItem>
             <FormItem name='dormitory_number' label='宿舍号' 
             rules={[{required:true,message:'请输入宿舍号'}]}>
-                <Input placeholder='请输入宿舍号'></Input>
+                <Input placeholder='宿舍号' addonBefore={selectBefore}></Input>
             </FormItem>
             <FormItem name='bed_number' label='床位号' 
-            rules={[{required:true,message:'请输入床位号'}]}>
-                <Input placeholder='请输入床位号'></Input>
+            rules={[{required:true,message:'请选择床位号'}]}>
+                <Select placeholder='请选择床位' 
+              options={[{value: '1'},{value: '2'},{value: '3'},{value: '4'},{value: '5'},{value: '6'}]}>
+              </Select>
             </FormItem>
             <FormItem name='role' label='角色'rules={[{required:true,message:'请选择角色'}]}>
               <Select placeholder='请选择角色' options={[{value: '管理员'},{value: '学生'}]}>
@@ -93,4 +113,4 @@ const UserModal = (props) => {
 UserModal.propTypes = {
     onClick: PropTypes.func
 }
-export default UserModal;
+export default UserModal

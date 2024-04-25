@@ -17,7 +17,8 @@ class UserService {
                 SELECT 2 UNION ALL
                 SELECT 3 UNION ALL
                 SELECT 4 UNION ALL
-                    SELECT 5
+                SELECT 5 UNION ALL
+                    SELECT 6
                     ) AS menu
             WHERE user.role = '管理员'
             ORDER BY menu.menu_id;`
@@ -29,7 +30,8 @@ class UserService {
                 SELECT 2 as menu_id UNION ALL
                 SELECT 3 UNION ALL
                 SELECT 4 UNION ALL
-                SELECT 5
+                SELECT 5 UNION ALL
+                SELECT 6
                     ) AS menu
             WHERE user.role = '学生'
             ORDER BY menu.menu_id;`
@@ -91,7 +93,45 @@ class UserService {
     // 编辑修改用户
     async update(account,dormitory_number,bed_number,role,id){
         const statement = `UPDATE user SET account = ?,dormitory_number = ?,bed_number = ?,role=? WHERE id = ?;`
+        // 将菜单和用户表进行关联，后面可以用用户id获取菜单
+        let statement1 = ``
+        if(role === '管理员'){
+             statement1 = `INSERT INTO permission (user_id, menu_id)
+            SELECT user.id, menu.menu_id
+            FROM user
+            CROSS JOIN (
+                SELECT 1 as menu_id UNION ALL
+                SELECT 2 UNION ALL
+                SELECT 3 UNION ALL
+                SELECT 4 UNION ALL
+                SELECT 5 UNION ALL
+                    SELECT 6
+                    ) AS menu
+            WHERE user.role = '管理员'
+            ORDER BY menu.menu_id;`
+        }else if(role === '学生') {
+             statement1 = `INSERT INTO permission (user_id, menu_id)
+            SELECT user.id, menu.menu_id
+            FROM user
+            CROSS JOIN (
+                SELECT 2 as menu_id UNION ALL
+                SELECT 3 UNION ALL
+                SELECT 4 UNION ALL
+                SELECT 5 UNION ALL
+                SELECT 6
+                    ) AS menu
+            WHERE user.role = '学生'
+            ORDER BY menu.menu_id;`
+        }
+        // 删除权限表中重复的权限，避免出现重复菜单
+        const statement2 = `DELETE p1
+        FROM permission p1
+        JOIN permission p2 ON p1.user_id = p2.user_id AND p1.menu_id = p2.menu_id
+        WHERE p1.permission_id > p2.permission_id;`
         const [result] = await connection.execute(statement,[account,dormitory_number,bed_number,role,id])
+        // const [result1] = await connection.execute(statement1)
+        // const [result2] = await connection.execute(statement2)
+        // return {result,result1,result2}
         return result
     }
     async remove(id){
