@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Switch, Card, Typography } from 'antd';
 import {ChromeOutlined } from '@ant-design/icons'; // 假设这是风扇的图标
-import { BASE_URL } from '@/service/request/config';
+import { BASE_URL } from '@/service/request/config'
+import { throttle } from '@/utils/throttle';
 const FanControl = () => {
   const [isFanOn, setIsFanOn] = useState(false); // 控制风扇状态的状态变量
 
-  const toggleFan = async () => {
+  const toggleFan = throttle(async () => {
     const action = isFanOn ? 'off' : 'on';
     try {
       const res = await axios.get(`${BASE_URL}/monitor/fanControl/${action}`)
@@ -15,7 +16,7 @@ const FanControl = () => {
     } catch (error) {
       console.error(error);
     }
-  };
+  },3000)
 
   return (
     <Card bordered={true} style={{ width: '19.5313vw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>

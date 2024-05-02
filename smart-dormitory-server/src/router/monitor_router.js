@@ -6,7 +6,7 @@ const monitorRouter = new KoaRouter({prefix:'/monitor'})
 const app = websockify(new Koa());
 const router = new KoaRouter
 const axios = require('axios');
-const NODEMCU_BASE_URL = 'http://172.20.10.12'//硬件端ip地址
+let NODEMCU_BASE_URL //硬件端ip地址
 const schedule = require('node-schedule');
 let isPowerOn = false;
 let autoModeSettings = {
@@ -18,10 +18,15 @@ app.use(bodyParser());
 // 存储所有活跃的 WebSocket 连接
 let connections = [];
 
+monitorRouter.post('/ipreceiver',async(ctx) => {
+  const ip = ctx.request.body
+  NODEMCU_BASE_URL = `http://${ip.ip}`
+  // console.log(NODEMCU_BASE_URL)
+})
 // 处理 HTTP POST 请求,在pc显示温湿度，人体有无，给硬件端请求
 monitorRouter.post('/data', async (ctx) => {
   const data = ctx.request.body;
-//   console.log(data);
+  // console.log(data)
   // 将接收到的数据发送给所有活跃的 WebSocket 连接
   connections.forEach((ws) => {
     if (ws.readyState === 1) { // 1 表示连接是开放的
@@ -170,7 +175,25 @@ app.ws.use((ctx) => {
   });
 });
 
+// 
+monitorRouter.post('/gasThreshold',async(ctx,next) => {
+    const { gasThreshold } = ctx.request.body
+    console.log(gasThreshold)
+    
+})
+// 烟雾达到阈值时控制蜂鸣器
+monitorRouter.post('/controlBuzzer', async (ctx) => {
+  const { command } = ctx.request.body;
+  let path = command === 'on' ? '/buzzer/on' : '/buzzer/off'
 
+  try {
+    const res = await axios.get(`${NODEMCU_BASE_URL}${path}`);
+    ctx.body = { message: `蜂鸣器已${command === 'on' ? '开启' : '关闭'}`, data: res.data }
+  } catch (error) {
+    // ctx.status = 500;
+    ctx.body = { message: '蜂鸣器控制失败', error: error.toString() }
+  }
+});
 app.listen(8002, '0.0.0.0',() => {
   console.log('websocket_8002端口启动成功');
 });

@@ -9,7 +9,7 @@ const Breadcrumbs = memo(({menuData}) => {
       const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
       const menuItem = menuData.find(item => item.path === url);
       return menuItem ? (
-            <Breadcrumb.Item><h2><MenuFoldOutlined style={{fontSize: '1.5625vw',marginRight:'0.651vw'}} />{menuItem.label}</h2></Breadcrumb.Item>
+            <Breadcrumb.Item key={url}><h2><MenuFoldOutlined style={{fontSize: '1.5625vw',marginRight:'0.651vw'}} />{menuItem.label}</h2></Breadcrumb.Item>
       ) : null;
     });
   

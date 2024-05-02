@@ -19,8 +19,11 @@ const int ledPin = D1;              // LED引脚
 const int fanPin = D5;               // 风扇控制引脚
 const int sensorPin = D7;           // 人体红外传感器引脚
 const int relayPin = D5;            // 继电器连接的GPIO端口
-// 服务器端点URL
+const int mq2Pin = A0;              // MQ2传感器的模拟输入引脚
+const int buzzerPin = D0;           // 蜂鸣器引脚
+// 服务器端点URL,传感器数据接收点
 const char* serverUrl = "http://172.20.10.2:8001/monitor/data";
+const char* ipReceiverUrl = "http://172.20.10.2:8001/monitor/ipreceiver"; // IP地址接收端点
 
 void setup() {
   Serial.begin(115200);             // 开始串行通信，设置波特率为115200
@@ -32,13 +35,17 @@ void setup() {
   Serial.println("\nWiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+  sendIPToServer(WiFi.localIP().toString()); // 发送IP地址到服务器
 
   dht.begin();                      // 初始化DHT传感器
   pinMode(ledPin, OUTPUT);          // 设置LED引脚为输出模式
   pinMode(fanPin, OUTPUT);          // 设置风扇控制引脚为输出模式
   pinMode(sensorPin, INPUT);        // 设置人体红外传感器引脚为输入模式
   pinMode(relayPin, OUTPUT);        //设置继电器引脚为输出模式
-  digitalWrite(relayPin, LOW); // 默认关闭
+  pinMode(mq2Pin, INPUT);           // 设置MQ2气体传感器引脚为输入模式
+  pinMode(buzzerPin, OUTPUT);       // 设置蜂鸣器引脚为输出模式
+  digitalWrite(relayPin, LOW);      // 默认关闭继电器
+  digitalWrite(buzzerPin, LOW);     // 默认关闭蜂鸣器
   // 定义Web服务器的路由
   server.on("/light/on", []() {
     digitalWrite(ledPin, HIGH);
@@ -60,20 +67,53 @@ void setup() {
     digitalWrite(relayPin, HIGH);
     server.send(200, "text/plain", "Power ON");
   });
-
   server.on("/power/off", []() {
     digitalWrite(relayPin, LOW);
     server.send(200, "text/plain", "Power OFF");
   });
+  server.on("/buzzer/on", []() {
+    digitalWrite(buzzerPin, HIGH);
+    server.send(200, "text/plain", "Buzzer ON");
+  });
+  server.on("/buzzer/off", []() {
+    digitalWrite(buzzerPin, LOW);
+    server.send(200, "text/plain", "Buzzer OFF");
+  });
   server.begin();                   // 启动Web服务器
   Serial.println("HTTP server started");
 }
+//发送IP到服务器
+void sendIPToServer(String ip) {
+WiFiClient client;
+HTTPClient http;
 
+Serial.print("Sending IP to server: ");
+Serial.println(ip);
+
+http.begin(client, ipReceiverUrl); // 开始连接到IP接收服务器
+http.addHeader("Content-Type", "application/json"); // 设置内容类型为JSON
+String jsonPayload = "{\"ip\":\"" + ip + "\"}";
+
+int httpResponseCode = http.POST(jsonPayload); // 发送POST请求，包含IP地址
+
+if (httpResponseCode > 0) {
+Serial.print("HTTP Response code: ");
+Serial.println(httpResponseCode);
+} else {
+Serial.print("Error sending IP to server: ");
+Serial.println(httpResponseCode);
+}
+http.end(); // 结束HTTP会话
+}
 void loop() {
   server.handleClient();            // 处理来自客户端的请求
 
   float h = dht.readHumidity();     // 读取湿度值
   float t = dht.readTemperature();  // 读取温度值
+  int mq2Value = analogRead(mq2Pin); // 读取MQ2传感器的模拟值
+  float voltage = mq2Value * (5.0 / 1023.0); // 将模拟值转换为电压
+  // 简化模型：线性关系转换电压到ppm（仅为演示，不基于实际校准数据）
+  float ppm = voltage * 200; // 假设每1伏特对应200 ppm
   bool presenceDetected = digitalRead(sensorPin) == HIGH; // 读取人体红外传感器状态
 
   if (WiFi.status() == WL_CONNECTED) {
@@ -83,7 +123,7 @@ void loop() {
     http.addHeader("Content-Type", "application/json");
 
     // 创建JSON格式的请求数据
-    String httpRequestData = "{\"temperature\":" + String(t) + ",\"humidity\":" + String(h) + ",\"presence\":" + String(presenceDetected) + "}";
+    String httpRequestData = "{\"temperature\":" + String(t) + ",\"humidity\":" + String(h) + ",\"presence\":" + String(presenceDetected) + ",\"gas\":" + String(ppm) + "}";
     int httpResponseCode = http.POST(httpRequestData); // 发送POST请求
     Serial.print("HTTP Response code: ");
     Serial.println(httpResponseCode);

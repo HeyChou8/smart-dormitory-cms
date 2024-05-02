@@ -9,7 +9,7 @@ import UseMainStore from '@/store/main';
 import { localCache } from '@/utils/cache.ts';
 
 const MainVisualization = memo(() => {
-  const {Content, Footer } = Layout;
+  const {Content, Footer } = Layout
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -30,7 +30,7 @@ const repairData = repairList.reduce((acc, repair) => {
     acc.fixed++;
   }
   return acc;
-}, { unfixed: 0, fixed: 0 });
+}, { unfixed: 0, fixed: 0 })
 // 拿到用户列表
 const userList = UseMainStore(state => state.userList)
 // 处理角色数据
@@ -91,7 +91,7 @@ scheduleArr?.forEach((schedule)=> {
     powerSessions.push(handledSchedule)
   
   } else {
-    console.error('Invalid date provided in schedule');
+    console.error('时间无效')
   }
 })
 

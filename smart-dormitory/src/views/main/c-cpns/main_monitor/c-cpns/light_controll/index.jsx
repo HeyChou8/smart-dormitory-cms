@@ -3,10 +3,11 @@ import axios from 'axios';
 import { Switch, Card, Typography } from 'antd';
 import { BulbOutlined } from '@ant-design/icons';
 import { BASE_URL } from '@/service/request/config';
+import { throttle } from '@/utils/throttle'
 const LightControl = ()=>{
   const [isLightOn, setIsLightOn] = useState(false);
     // 转换灯光
-  const toggleLight = async () => {
+  const toggleLight = throttle(async () => {
     const action = isLightOn ? 'off' : 'on';
     try {
       const res = await axios.get(`${BASE_URL}/monitor/lightControl/${action}`);
@@ -14,7 +15,7 @@ const LightControl = ()=>{
     } catch (error) {
         console.log(error)
     }
-  };
+  },3000)
 
   return (
     <Card bordered={true} style={{ width: '19.5313vw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
