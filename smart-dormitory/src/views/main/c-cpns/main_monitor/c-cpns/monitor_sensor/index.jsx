@@ -20,7 +20,7 @@ const lastGasValueRef = useRef(data.gas); // 存储上一次的烟雾值
 
 // 将函数存入ref
 checkGasValueRef.current = () => {
-  if (Math.abs(data.gas - lastGasValueRef.current) > 300) { // 只有当烟雾值变化超过200 ppm时才调用
+  if (Math.abs(data.gas - lastGasValueRef.current) > 300) { // 只有当烟雾值变化超过300 ppm时才调用
     checkGasValue(data.gas);
     lastGasValueRef.current = data.gas; // 更新存储的烟雾值
   }

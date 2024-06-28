@@ -21,6 +21,7 @@
     "koa-bodyparser": "^4.4.1",
     "koa-static": "^4.0.3",
     "koa-websocket": "^7.0.0",
+    "mqtt": "^5.5.5",
     "mysql2": "^3.9.2",
     "node-schedule": "^2.1.1"
   }

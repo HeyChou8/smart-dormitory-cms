@@ -197,4 +197,7 @@ monitorRouter.post('/controlBuzzer', async (ctx) => {
 app.listen(8002, '0.0.0.0',() => {
   console.log('websocket_8002端口启动成功');
 });
+monitorRouter.post('/mqttData',async(ctx) => {
+  
+})
 module.exports = monitorRouter

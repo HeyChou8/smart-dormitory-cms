@@ -23,7 +23,7 @@ const scheduleArr = localCache.getCache('scheduleArr')
 // 拿到报修列表
 const repairList = UseMainStore(state => state.repairList)
 // 处理报修数据
-const repairData = repairList.reduce((acc, repair) => {
+const repairData = repairList?.reduce((acc, repair) => {
   if (repair.repair_status === "未处理") {
     acc.unfixed++;
   } else if (repair.repair_status === "已处理") {
@@ -35,7 +35,7 @@ const repairData = repairList.reduce((acc, repair) => {
 const userList = UseMainStore(state => state.userList)
 // 处理角色数据
 // 使用reduce方法统计每种角色的数量
-const roleCount = userList.reduce((acc, user) => {
+const roleCount = userList?.reduce((acc, user) => {
   if (user.role === '管理员') {
     acc.admin = (acc.admin || 0) + 1; // 如果角色是管理员，则递增管理员的计数
   } else if (user.role === '学生') {
@@ -50,7 +50,7 @@ const userData = [
 ];
 // 处理各栋的人数数据
 // 使用reduce方法统计每栋楼的人数
-const occupancy = userList.reduce((acc, user) => {
+const occupancy = userList?.reduce((acc, user) => {
   // 提取栋数，例如从"A栋143"中提取"A栋"
   const building = user.dormitory_number[0] + '栋';
   // 计数，如果该栋已存在于累加器中，则增加计数，否则设为1
