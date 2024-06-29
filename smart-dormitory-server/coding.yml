@@ -1,0 +1,10 @@
+stages:
+  - name: build-and-deploy
+    steps:
+      - name: build
+        image: node:14
+        script:
+          - npm install
+      - name: deploy
+        script:
+          - npm run dev
